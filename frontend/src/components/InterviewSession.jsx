@@ -238,57 +238,54 @@ const InterviewSession = ({ type, onEndSession }) => {
     return (
         <Container fluid className="h-100 d-flex flex-column py-3" style={{ maxHeight: 'calc(100vh - 70px)' }}>
             {/* Header */}
-            <div className="d-flex justify-content-between align-items-center mb-3 px-3">
+            <div className="d-flex justify-content-between align-items-center mb-4 px-4">
                 <div>
-                    <h4 className="mb-0 fw-bold text-primary">
+                    <h4 className="mb-1 fw-bold text-gradient">
                         {type === 'behavioral' ? 'Behavioral Interview' : 'Technical Interview'}
                     </h4>
-                    <small className="text-muted">
-                        <span className={`badge ${isConnected ? 'bg-success' : 'bg-danger'} me-2`}>
-                            {isConnected ? 'Live' : 'Offline'}
+                    <div className="d-flex align-items-center gap-2">
+                        <span className={`badge rounded-pill ${isConnected ? 'bg-success' : 'bg-danger'} bg-opacity-25 text-${isConnected ? 'success' : 'danger'} border border-${isConnected ? 'success' : 'danger'}`}>
+                            {isConnected ? '● Live' : '○ Offline'}
                         </span>
-                        Session ID: #{clientId}
-                    </small>
+                        <small className="text-muted">Session #{clientId}</small>
+                    </div>
                 </div>
-                <Button variant="outline-danger" size="sm" onClick={handleEndInterview} className="rounded-pill px-3">
+                <Button variant="outline-danger" size="sm" onClick={handleEndInterview} className="rounded-pill px-4 py-2 fw-bold border-2">
                     End Session
                 </Button>
             </div>
 
             {/* Chat Area */}
-            <div className="flex-grow-1 overflow-auto mb-3 px-3" style={{ scrollBehavior: 'smooth' }}>
+            <div className="flex-grow-1 overflow-auto mb-4 px-4" style={{ scrollBehavior: 'smooth' }}>
                 {messages.length === 0 && (
                     <div className="text-center text-muted mt-5">
-                        <div className="display-1 mb-3">👋</div>
-                        <p className="lead">Say "Hello" to start your interview!</p>
+                        <div className="display-1 mb-4 opacity-50">👋</div>
+                        <h3 className="fw-bold text-primary mb-2">Ready to start?</h3>
+                        <p className="lead text-secondary">Say "Hello" to begin your interview session.</p>
                     </div>
                 )}
                 
                 {messages.map((msg, idx) => (
-                    <div key={idx} className={`d-flex mb-3 ${msg.role === 'user' ? 'justify-content-end' : 'justify-content-start'}`}>
+                    <div key={idx} className={`d-flex mb-4 ${msg.role === 'user' ? 'justify-content-end' : 'justify-content-start'}`}>
                         {msg.role !== 'user' && (
-                            <div className="me-2 d-flex align-items-end pb-1">
-                                <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style={{width: '32px', height: '32px', fontSize: '0.8rem'}}>AI</div>
+                            <div className="me-3 d-flex align-items-end pb-2">
+                                <div className="bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{width: '36px', height: '36px', fontSize: '0.9rem'}}>AI</div>
                             </div>
                         )}
                         <div className={`chat-bubble ${msg.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`}>
                             {msg.text}
                         </div>
-                        {msg.role === 'user' && (
-                            <div className="ms-2 d-flex align-items-end pb-1">
-                                <div className="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style={{width: '32px', height: '32px', fontSize: '0.8rem'}}>Me</div>
-                            </div>
-                        )}
                     </div>
                 ))}
                 
                 {/* Typing Indicator */}
                 {isProcessing && (
-                    <div className="d-flex mb-3 justify-content-start">
-                        <div className="me-2 d-flex align-items-end pb-1">
-                            <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style={{width: '32px', height: '32px', fontSize: '0.8rem'}}>AI</div>
+                    <div className="d-flex mb-4 justify-content-start">
+                        <div className="me-3 d-flex align-items-end pb-2">
+                            <div className="bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{width: '36px', height: '36px', fontSize: '0.9rem'}}>AI</div>
                         </div>
-                        <div className="chat-bubble chat-bubble-ai text-muted fst-italic">
+                        <div className="chat-bubble chat-bubble-ai text-muted fst-italic d-flex align-items-center gap-2">
+                            <span className="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                             Thinking...
                         </div>
                     </div>
@@ -297,31 +294,35 @@ const InterviewSession = ({ type, onEndSession }) => {
             </div>
 
             {/* Controls Area */}
-            <Card className="border-0 shadow-sm bg-light mx-3">
-                <Card.Body className="d-flex align-items-center justify-content-between py-2">
-                    <div className="d-flex align-items-center flex-grow-1">
-                        <div className="me-3" style={{ width: '100px' }}>
+            <div className="px-4 pb-2">
+                <div className="glass-panel rounded-4 p-3 d-flex align-items-center justify-content-between">
+                    <div className="d-flex align-items-center flex-grow-1 gap-4">
+                        <div style={{ width: '120px' }}>
                             <AudioVisualizer isActive={isAiSpeaking || isListening || isProcessing} />
                         </div>
-                        <div className="text-muted small">
-                            {isAiSpeaking ? "AI is speaking..." : isProcessing ? "AI is thinking..." : isListening ? "Listening..." : "Waiting..."}
-                            {isListening && (
-                                <div className="mt-1 p-2 bg-white border rounded text-secondary" style={{minHeight: '40px'}}>
-                                    <span className="fw-bold">{transcript}</span>
-                                    <span className="text-muted fst-italic">{interimTranscript}</span>
+                        <div className="text-muted small flex-grow-1">
+                            <div className="fw-bold text-uppercase mb-1" style={{fontSize: '0.7rem', letterSpacing: '1px'}}>
+                                {isAiSpeaking ? "AI Speaking" : isProcessing ? "Processing" : isListening ? "Listening" : "Standby"}
+                            </div>
+                            {isListening ? (
+                                <div className="text-primary fw-medium">
+                                    {transcript || <span className="opacity-50">Listening...</span>}
+                                    <span className="text-muted opacity-50 ms-1">{interimTranscript}</span>
                                 </div>
+                            ) : (
+                                <div className="opacity-50">Waiting for input...</div>
                             )}
                         </div>
                     </div>
                     
-                    <div className="d-flex gap-2 ms-3">
+                    <div className="d-flex gap-3 ms-3">
                         {!isListening ? (
                             <Button 
                                 variant="primary"
                                 onClick={handleStartListening}
                                 disabled={isProcessing || !isConnected}
-                                className="rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                                style={{ width: '50px', height: '50px' }}
+                                className="rounded-circle d-flex align-items-center justify-content-center shadow-lg hover-scale"
+                                style={{ width: '60px', height: '60px', fontSize: '1.5rem' }}
                                 title="Start Speaking"
                             >
                                 🎙️
@@ -330,16 +331,16 @@ const InterviewSession = ({ type, onEndSession }) => {
                             <Button 
                                 variant="danger"
                                 onClick={handleStopListening}
-                                className="rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-                                style={{ width: '50px', height: '50px' }}
+                                className="rounded-circle d-flex align-items-center justify-content-center shadow-lg hover-scale"
+                                style={{ width: '60px', height: '60px', fontSize: '1.5rem' }}
                                 title="Stop & Send"
                             >
                                 ⏹️
                             </Button>
                         )}
                     </div>
-                </Card.Body>
-            </Card>
+                </div>
+            </div>
         </Container>
     );
 };

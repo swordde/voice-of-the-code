@@ -67,28 +67,34 @@ const MicCheckModal = ({ show, onHide, onStart }) => {
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered>
-            <Modal.Header closeButton>
-                <Modal.Title>🎤 Mic Check</Modal.Title>
+        <Modal show={show} onHide={onHide} centered contentClassName="glass-panel border-0 text-white">
+            <Modal.Header closeButton closeVariant="white" className="border-bottom border-secondary border-opacity-25">
+                <Modal.Title className="fw-bold">🎤 Mic Check</Modal.Title>
             </Modal.Header>
-            <Modal.Body className="text-center">
-                <p>Speak to test your microphone.</p>
-                <div className="mb-3">
+            <Modal.Body className="text-center py-4">
+                <p className="lead mb-4">Speak to test your microphone.</p>
+                <div className="mb-4 px-3">
                     <ProgressBar 
                         now={volume} 
                         variant={volume > 10 ? "success" : "warning"} 
-                        style={{ height: '20px' }} 
+                        style={{ height: '10px', backgroundColor: 'rgba(255,255,255,0.1)' }} 
+                        className="rounded-pill"
                     />
                 </div>
-                <p className="text-muted small">
+                <p className={`small fw-bold ${volume > 10 ? "text-success" : "text-muted"}`}>
                     {volume > 10 ? "Microphone is working! ✅" : "Waiting for audio..."}
                 </p>
             </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>
+            <Modal.Footer className="border-top border-secondary border-opacity-25">
+                <Button variant="outline-light" onClick={onHide} className="rounded-pill px-4">
                     Cancel
                 </Button>
-                <Button variant="primary" onClick={onStart} disabled={volume < 5}>
+                <Button 
+                    variant="primary" 
+                    onClick={onStart} 
+                    disabled={volume < 5}
+                    className="rounded-pill px-4 fw-bold"
+                >
                     Start Interview
                 </Button>
             </Modal.Footer>
