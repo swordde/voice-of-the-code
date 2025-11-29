@@ -3,6 +3,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 const WS_PROTOCOL = API_BASE_URL.startsWith('https') ? 'wss' : 'ws';
 const WS_BASE_URL = API_BASE_URL.replace(/^http(s)?/, WS_PROTOCOL);
 
+export const API_URL = API_BASE_URL;
+
 export const endpoints = {
     login: `${API_BASE_URL}/auth/login`,
     register: `${API_BASE_URL}/auth/register`,
