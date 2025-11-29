@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+python-dotenv
+pymongo
+groq
+deepgram-sdk
+websockets
+requests
+motor
+bcrypt
+python-jose[cryptography]
+email-validator

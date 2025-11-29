@@ -1,0 +1,44 @@
+/* App specific styles */
+.hover-effect:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg) !important;
+  cursor: pointer;
+}
+
+.chat-bubble {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.chat-bubble.user {
+  background-color: var(--primary-color);
+  color: white;
+  border-bottom-right-radius: 2px;
+  margin-left: auto;
+}
+
+.chat-bubble.ai {
+  background-color: #E5E7EB;
+  color: var(--text-main);
+  border-bottom-left-radius: 2px;
+  margin-right: auto;
+}
+
+.chat-bubble.system {
+  background-color: #FEF3C7;
+  color: #92400E;
+  font-size: 0.9em;
+  text-align: center;
+  margin: 0 auto;
+  width: fit-content;
+}
+
+.full-height-center {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
