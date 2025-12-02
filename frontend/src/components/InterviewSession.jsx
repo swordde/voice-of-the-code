@@ -60,6 +60,11 @@ const InterviewSession = ({ type, onEndSession }) => {
 
                 if (finalChunk) {
                     setTranscript(prev => {
+                        // Deduplication: prevent appending the same chunk if it was just added
+                        // This fixes the "hello hello hello" stutter issue
+                        if (prev.trim().endsWith(finalChunk.trim())) {
+                            return prev;
+                        }
                         const newVal = prev + finalChunk;
                         transcriptRef.current = newVal; // Sync ref
                         return newVal;
@@ -106,7 +111,16 @@ const InterviewSession = ({ type, onEndSession }) => {
                 const data = JSON.parse(lastMessage);
                 if (data.type === 'transcript') {
                     // Server-side transcript (ignored in browser mode usually, but kept for compatibility)
-                    setMessages((prev) => [...prev, { sender: 'User (Live)', text: data.text, role: 'user' }]);
+                    // Update the last message if it's a live user transcript to prevent stacking
+                    setMessages((prev) => {
+                        const lastMsg = prev[prev.length - 1];
+                        if (lastMsg && lastMsg.sender === 'User (Live)') {
+                            const newMessages = [...prev];
+                            newMessages[newMessages.length - 1] = { ...lastMsg, text: data.text };
+                            return newMessages;
+                        }
+                        return [...prev, { sender: 'User (Live)', text: data.text, role: 'user' }];
+                    });
                 } else if (data.type === 'ai_response') {
                     setIsProcessing(false);
                     setMessages((prev) => [...prev, { sender: 'AI', text: data.text, role: 'ai' }]);
