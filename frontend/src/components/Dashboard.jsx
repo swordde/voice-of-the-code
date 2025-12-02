@@ -230,3 +230,5 @@ const Dashboard = ({ onStartInterview }) => {
         </Container>
     );
 };
+
+export default Dashboard;
