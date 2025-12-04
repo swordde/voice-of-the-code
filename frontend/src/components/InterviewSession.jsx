@@ -16,6 +16,15 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
     const [code, setCode] = useState('// Write your code here...');
     const [showEditor, setShowEditor] = useState(type === 'technical' || type === 'dsa_practice');
     
+    // Determine language based on topic
+    const getLanguage = () => {
+        if (topic === 'python_dsa') return 'python';
+        if (topic === 'java_oop') return 'java';
+        if (topic === 'sql_practice') return 'sql';
+        return 'javascript';
+    };
+    const language = getLanguage();
+
     // Refs for real-time logic
     const transcriptRef = useRef('');
     const silenceTimer = useRef(null);
@@ -347,15 +356,16 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
                     <Col md={7} className="h-100 d-flex flex-column">
                         <div className="glass-panel rounded-4 h-100 d-flex flex-column overflow-hidden border border-secondary border-opacity-25">
                             <div className="p-2 bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
-                                <span className="small fw-bold text-muted ms-2">JavaScript Editor</span>
+                                <span className="small fw-bold text-muted ms-2 text-capitalize">{language} Editor</span>
                                 <Button size="sm" variant="success" onClick={handleCodeSubmit} disabled={isProcessing}>
                                     Run & Submit Code ▶
                                 </Button>
                             </div>
-                            <div className="flex-grow-1">
+                            <div className="flex-grow-1" style={{ minHeight: '400px' }}>
                                 <Editor
                                     height="100%"
-                                    defaultLanguage="javascript"
+                                    defaultLanguage={language}
+                                    language={language}
                                     theme="vs-dark"
                                     value={code}
                                     onChange={(value) => setCode(value)}
@@ -363,6 +373,7 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
                                         minimap: { enabled: false },
                                         fontSize: 14,
                                         padding: { top: 16 },
+                                        automaticLayout: true,
                                     }}
                                 />
                             </div>
