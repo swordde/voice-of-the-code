@@ -15,6 +15,7 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
     const [textInput, setTextInput] = useState('');
     const [code, setCode] = useState('// Write your code here...');
     const [showEditor, setShowEditor] = useState(type === 'technical' || type === 'dsa_practice');
+    const [isMuted, setIsMuted] = useState(false);
     
     // Determine language based on topic
     const getLanguage = () => {
@@ -30,6 +31,7 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
     const silenceTimer = useRef(null);
     const stopListeningRef = useRef(null);
     const messagesEndRef = useRef(null);
+    const currentAudioRef = useRef(null);
     
     // Use a random client ID for now, persisted across renders
     const [clientId] = useState(Math.floor(Math.random() * 1000));
@@ -142,6 +144,7 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
     }, [lastMessage]);
 
     const speakText = (text) => {
+        if (isMuted) return;
         if ('speechSynthesis' in window) {
             setIsAiSpeaking(true);
             const utterance = new SpeechSynthesisUtterance(text);
@@ -154,8 +157,10 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
     };
 
     const playAudio = (base64Data) => {
+        if (isMuted) return;
         try {
             const audio = new Audio(`data:audio/mp3;base64,${base64Data}`);
+            currentAudioRef.current = audio;
             setIsAiSpeaking(true);
             audio.onended = () => {
                 setIsAiSpeaking(false);
@@ -166,6 +171,21 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
             console.error("Error playing audio:", e);
             setIsAiSpeaking(false);
         }
+    };
+
+    const toggleMute = () => {
+        if (!isMuted) {
+            // Muting: Stop any current audio
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            if (currentAudioRef.current) {
+                currentAudioRef.current.pause();
+                currentAudioRef.current.currentTime = 0;
+            }
+            setIsAiSpeaking(false);
+        }
+        setIsMuted(!isMuted);
     };
 
     const handleStartListening = () => {
@@ -290,9 +310,20 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
                         <small className="text-muted">Session #{clientId}</small>
                     </div>
                 </div>
-                <Button variant="outline-danger" size="sm" onClick={handleEndInterview} className="rounded-pill px-4 py-2 fw-bold border-2">
-                    {type === 'dsa_practice' ? 'End Practice' : 'End Session'}
-                </Button>
+                <div className="d-flex gap-2">
+                    <Button 
+                        variant={isMuted ? "danger" : "outline-secondary"} 
+                        size="sm" 
+                        onClick={toggleMute} 
+                        className="rounded-pill px-3 py-2 fw-bold border-2"
+                        title={isMuted ? "Unmute AI Voice" : "Mute AI Voice"}
+                    >
+                        {isMuted ? "🔇 Muted" : "🔊 Voice On"}
+                    </Button>
+                    <Button variant="outline-danger" size="sm" onClick={handleEndInterview} className="rounded-pill px-4 py-2 fw-bold border-2">
+                        {type === 'dsa_practice' ? 'End Practice' : 'End Session'}
+                    </Button>
+                </div>
             </div>
 
             <Row className="flex-grow-1 overflow-hidden px-4 mb-4" style={{ minHeight: 0 }}>
