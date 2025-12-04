@@ -5,7 +5,7 @@ import { useWebSocket } from '../hooks/useWebSocket';
 import AudioVisualizer from './AudioVisualizer';
 import { endpoints } from '../config';
 
-const InterviewSession = ({ type, difficulty, onEndSession }) => {
+const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
     const [messages, setMessages] = useState([]);
     const [isAiSpeaking, setIsAiSpeaking] = useState(false);
     const [isListening, setIsListening] = useState(false);
@@ -14,7 +14,7 @@ const InterviewSession = ({ type, difficulty, onEndSession }) => {
     const [interimTranscript, setInterimTranscript] = useState('');
     const [textInput, setTextInput] = useState('');
     const [code, setCode] = useState('// Write your code here...');
-    const [showEditor, setShowEditor] = useState(type === 'technical');
+    const [showEditor, setShowEditor] = useState(type === 'technical' || type === 'dsa_practice');
     
     // Refs for real-time logic
     const transcriptRef = useRef('');
@@ -24,7 +24,7 @@ const InterviewSession = ({ type, difficulty, onEndSession }) => {
     
     // Use a random client ID for now, persisted across renders
     const [clientId] = useState(Math.floor(Math.random() * 1000));
-    const { isConnected, lastMessage, sendMessage } = useWebSocket(endpoints.wsInterview(clientId, type, difficulty));
+    const { isConnected, lastMessage, sendMessage } = useWebSocket(endpoints.wsInterview(clientId, type, difficulty, topic));
     
     // Browser Speech Recognition
     const recognitionRef = useRef(null);
@@ -268,7 +268,11 @@ const InterviewSession = ({ type, difficulty, onEndSession }) => {
             <div className="d-flex justify-content-between align-items-center mb-4 px-4">
                 <div>
                     <h4 className="mb-1 fw-bold text-gradient">
-                        {type === 'behavioral' ? 'Behavioral Interview' : 'Technical Interview'}
+                        {type === 'dsa_practice' ? 'DSA Practice Mode' : 
+                         type === 'hr' ? 'HR Interview' : 
+                         type === 'managerial' ? 'Managerial Round' : 
+                         type === 'system_design' ? 'System Design' : 
+                         'Technical Interview'}
                     </h4>
                     <div className="d-flex align-items-center gap-2">
                         <span className={`badge rounded-pill ${isConnected ? 'bg-success' : 'bg-danger'} bg-opacity-25 text-${isConnected ? 'success' : 'danger'} border border-${isConnected ? 'success' : 'danger'}`}>

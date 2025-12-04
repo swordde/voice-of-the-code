@@ -32,6 +32,13 @@ const interviewTypes = [
         desc: 'Leadership style, conflict resolution, and team management.',
         icon: '📊',
         color: 'info'
+    },
+    {
+        id: 'dsa_practice',
+        title: 'DSA Practice',
+        desc: 'Focus purely on Data Structures & Algorithms problems.',
+        icon: '🧩',
+        color: 'danger'
     }
 ];
 
