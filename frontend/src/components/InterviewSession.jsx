@@ -315,7 +315,9 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
                             <div key={idx} className={`d-flex mb-4 ${msg.role === 'user' ? 'justify-content-end' : 'justify-content-start'}`}>
                                 {msg.role !== 'user' && (
                                     <div className="me-3 d-flex align-items-end pb-2">
-                                        <div className="bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{width: '36px', height: '36px', fontSize: '0.9rem'}}>AI</div>
+                                        <div className={`bg-${type === 'dsa_practice' ? 'danger' : 'primary'} bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm`} style={{width: '36px', height: '36px', fontSize: '0.7rem'}}>
+                                            {type === 'dsa_practice' ? 'DSA' : 'AI'}
+                                        </div>
                                     </div>
                                 )}
                                 <div className={`chat-bubble ${msg.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`} style={{whiteSpace: 'pre-wrap'}}>
@@ -374,9 +376,11 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
                 <div className="glass-panel rounded-4 p-3">
                     <div className="d-flex align-items-center justify-content-between mb-3">
                         <div className="d-flex align-items-center flex-grow-1 gap-4">
-                            <div style={{ width: '120px' }}>
-                                <AudioVisualizer isActive={isAiSpeaking || isListening || isProcessing} />
-                            </div>
+                            {type !== 'dsa_practice' && (
+                                <div style={{ width: '120px' }}>
+                                    <AudioVisualizer isActive={isAiSpeaking || isListening || isProcessing} />
+                                </div>
+                            )}
                             <div className="text-muted small flex-grow-1">
                                 <div className="fw-bold text-uppercase mb-1" style={{fontSize: '0.7rem', letterSpacing: '1px'}}>
                                     {isAiSpeaking ? "AI Speaking" : isProcessing ? "Processing" : isListening ? "Listening" : "Standby"}
