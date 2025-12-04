@@ -10,5 +10,5 @@ export const endpoints = {
     register: `${API_BASE_URL}/auth/register`,
     reports: `${API_BASE_URL}/reports`,
     grade: `${API_BASE_URL}/grade`,
-    wsInterview: (clientId, type) => `${WS_BASE_URL}/ws/interview/${clientId}?type=${type}`
+    wsInterview: (clientId, type, difficulty) => `${WS_BASE_URL}/ws/interview/${clientId}?type=${type}&difficulty=${difficulty || 'medium'}`
 };

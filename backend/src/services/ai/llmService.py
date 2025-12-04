@@ -9,25 +9,35 @@ client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
-async def get_ai_response(history, interview_type):
+async def get_ai_response(history, interview_type, difficulty="medium"):
     """
     history: A list of dictionaries [{"role": "user", "content": "..."}, ...]
     interview_type: "technical", "hr", etc.
+    difficulty: "easy", "medium", "hard"
     """
     
     # 1. Define the Persona based on selection
-    system_prompts = {
+    base_prompts = {
         "technical": "You are a strict Senior Software Architect. Ask deep technical questions. Be concise. Do not be overly friendly.",
         "hr": "You are a professional HR Manager. Focus on behavioral questions using the STAR method.",
         "managerial": "You are a VP of Engineering. Focus on leadership and conflict resolution.",
         "system_design": "You are a Lead Engineer focusing on scalability and architecture. Maintain a professional tone."
     }
     
-    selected_prompt = system_prompts.get(interview_type, "You are a professional interviewer.")
+    difficulty_modifiers = {
+        "easy": "Ask fundamental, beginner-friendly questions. Be encouraging and helpful.",
+        "medium": "Ask standard industry-level questions. Expect solid understanding but allow for some guidance.",
+        "hard": "Ask complex, edge-case heavy, and deep-dive questions. Be rigorous and challenge assumptions. Do not give hints."
+    }
+
+    base_prompt = base_prompts.get(interview_type, "You are a professional interviewer.")
+    difficulty_prompt = difficulty_modifiers.get(difficulty, difficulty_modifiers["medium"])
+    
+    full_system_prompt = f"{base_prompt} The difficulty level is {difficulty.upper()}. {difficulty_prompt}"
 
     # 2. Construct the messages list
     messages = [
-        {"role": "system", "content": selected_prompt}
+        {"role": "system", "content": full_system_prompt}
     ]
     
     # Add the conversation history so the AI remembers context

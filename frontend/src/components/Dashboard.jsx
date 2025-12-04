@@ -92,10 +92,10 @@ const Dashboard = ({ onStartInterview }) => {
         setShowMicCheck(true);
     };
 
-    const handleConfirmStart = () => {
+    const handleConfirmStart = (difficulty) => {
         setShowMicCheck(false);
         if (selectedType) {
-            onStartInterview(selectedType);
+            onStartInterview(selectedType, difficulty);
         }
     };
 

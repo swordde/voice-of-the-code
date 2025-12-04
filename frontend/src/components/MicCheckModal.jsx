@@ -4,6 +4,7 @@ import { Modal, Button, ProgressBar } from 'react-bootstrap';
 const MicCheckModal = ({ show, onHide, onStart }) => {
     const [volume, setVolume] = useState(0);
     const [stream, setStream] = useState(null);
+    const [difficulty, setDifficulty] = useState('medium');
     const audioContextRef = useRef(null);
     const analyserRef = useRef(null);
     const sourceRef = useRef(null);
@@ -84,6 +85,23 @@ const MicCheckModal = ({ show, onHide, onStart }) => {
                 <p className={`small fw-bold ${volume > 10 ? "text-success" : "text-muted"}`}>
                     {volume > 10 ? "Microphone is working! ✅" : "Waiting for audio..."}
                 </p>
+
+                <div className="mt-4">
+                    <p className="mb-2 text-light">Select Difficulty:</p>
+                    <div className="d-flex justify-content-center gap-2">
+                        {['easy', 'medium', 'hard'].map((level) => (
+                            <Button
+                                key={level}
+                                variant={difficulty === level ? "primary" : "outline-secondary"}
+                                size="sm"
+                                onClick={() => setDifficulty(level)}
+                                className="text-capitalize rounded-pill px-3"
+                            >
+                                {level}
+                            </Button>
+                        ))}
+                    </div>
+                </div>
             </Modal.Body>
             <Modal.Footer className="border-top border-secondary border-opacity-25">
                 <Button variant="outline-light" onClick={onHide} className="rounded-pill px-4">
@@ -91,7 +109,7 @@ const MicCheckModal = ({ show, onHide, onStart }) => {
                 </Button>
                 <Button 
                     variant="primary" 
-                    onClick={onStart} 
+                    onClick={() => onStart(difficulty)} 
                     disabled={volume < 5}
                     className="rounded-pill px-4 fw-bold"
                 >

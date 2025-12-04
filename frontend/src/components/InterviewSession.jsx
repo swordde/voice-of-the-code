@@ -4,7 +4,7 @@ import { useWebSocket } from '../hooks/useWebSocket';
 import AudioVisualizer from './AudioVisualizer';
 import { endpoints } from '../config';
 
-const InterviewSession = ({ type, onEndSession }) => {
+const InterviewSession = ({ type, difficulty, onEndSession }) => {
     const [messages, setMessages] = useState([]);
     const [isAiSpeaking, setIsAiSpeaking] = useState(false);
     const [isListening, setIsListening] = useState(false);
@@ -21,7 +21,7 @@ const InterviewSession = ({ type, onEndSession }) => {
     
     // Use a random client ID for now, persisted across renders
     const [clientId] = useState(Math.floor(Math.random() * 1000));
-    const { isConnected, lastMessage, sendMessage } = useWebSocket(endpoints.wsInterview(clientId, type));
+    const { isConnected, lastMessage, sendMessage } = useWebSocket(endpoints.wsInterview(clientId, type, difficulty));
     
     // Browser Speech Recognition
     const recognitionRef = useRef(null);

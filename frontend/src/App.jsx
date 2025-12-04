@@ -12,6 +12,7 @@ import './App.css'
 function App() {
   const [view, setView] = useState('dashboard');
   const [interviewType, setInterviewType] = useState(null);
+  const [interviewDifficulty, setInterviewDifficulty] = useState('medium');
   const [reportData, setReportData] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [authView, setAuthView] = useState('login'); // 'login' or 'signup'
@@ -36,10 +37,11 @@ function App() {
     setView('auth');
   };
 
-  const handleStartInterview = (type) => {
+  const handleStartInterview = (type, difficulty = 'medium') => {
     setInterviewType(type);
+    setInterviewDifficulty(difficulty);
     setView('interview');
-    console.log(`Starting ${type} interview...`);
+    console.log(`Starting ${type} interview with difficulty ${difficulty}...`);
   };
 
   const handleEndSession = (report) => {
@@ -86,7 +88,7 @@ function App() {
       
       <Container className="mt-4">
         {view === 'dashboard' && <Dashboard onStartInterview={handleStartInterview} />}
-        {view === 'interview' && <InterviewSession type={interviewType} onEndSession={handleEndSession} />}
+        {view === 'interview' && <InterviewSession type={interviewType} difficulty={interviewDifficulty} onEndSession={handleEndSession} />}
         {view === 'report' && <ReportView report={reportData} onBack={() => setView('dashboard')} />}
         {view === 'history' && <HistoryView onBack={() => setView('dashboard')} />}
         {view === 'learning' && <LearningSpace onBack={() => setView('dashboard')} />}
