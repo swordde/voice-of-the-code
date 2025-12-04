@@ -47,8 +47,20 @@ async def grade_interview(history, interview_type):
         if role == "Candidate":
             candidate_text_only += f"{msg['content']} "
 
-    # Calculate filler words locally (more accurate than LLM sometimes)
-    filler_count, filler_details = count_filler_words(candidate_text_only)
+    # Check for minimal history
+    if len(history) < 2:
+        return {
+            "technical_score": 0,
+            "communication_score": 0,
+            "confidence_score": 0,
+            "feedback": "Session was too short to generate a report. Please practice more next time!",
+            "strengths": ["N/A"],
+            "improvements": ["Practice for a longer duration"],
+            "keywords_mentioned": [],
+            "keywords_missed": [],
+            "filler_word_count": filler_count,
+            "filler_details": filler_details
+        }
 
     system_prompt = f"""
     You are an expert interview evaluator for a {interview_type} interview.
