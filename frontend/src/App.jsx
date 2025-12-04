@@ -48,8 +48,8 @@ function App() {
   };
 
   const handleStartPractice = (topic) => {
-    setInterviewType('technical'); // Practice is always technical/code based
-    setInterviewDifficulty('medium'); // Default difficulty for practice
+    setInterviewType('dsa_practice'); // Practice is always technical/code based
+    setInterviewDifficulty('easy'); // Default difficulty for practice
     setPracticeTopic(topic);
     setView('interview');
     console.log(`Starting practice session for ${topic}...`);
