@@ -298,7 +298,7 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
             <Row className="flex-grow-1 overflow-hidden px-4 mb-4" style={{ minHeight: 0 }}>
                 {/* Chat Area */}
                 <Col md={showEditor ? 5 : 12} className="h-100 d-flex flex-column" style={{ minHeight: 0 }}>
-                    <div className="flex-grow-1 overflow-auto mb-3 pe-2" style={{ scrollBehavior: 'smooth', minHeight: 0 }}>
+                    <div className="flex-grow-1 overflow-auto mb-3 pe-2" style={{ scrollBehavior: 'smooth', minHeight: 0, maxHeight: '100%' }}>
                         {messages.length === 0 && (
                             <div className="text-center text-muted mt-5">
                                 {type === 'dsa_practice' ? (
