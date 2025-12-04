@@ -42,10 +42,16 @@ async def grade_interview(history, interview_type):
     candidate_text_only = ""
     
     for msg in history:
-        role = "Interviewer" if msg["role"] == "assistant" else "Candidate"
-        transcript_text += f"{role}: {msg['content']}\n"
+        # Handle both 'content' (backend) and 'text' (frontend) keys
+        content = msg.get('content') or msg.get('text') or ""
+        role = "Interviewer" if msg.get("role") in ["assistant", "ai", "system"] else "Candidate"
+        
+        transcript_text += f"{role}: {content}\n"
         if role == "Candidate":
-            candidate_text_only += f"{msg['content']} "
+            candidate_text_only += f"{content} "
+
+    # Calculate filler words locally
+    filler_count, filler_details = count_filler_words(candidate_text_only)
 
     # Check for minimal history
     if len(history) < 2:
@@ -62,22 +68,40 @@ async def grade_interview(history, interview_type):
             "filler_details": filler_details
         }
 
-    system_prompt = f"""
-    You are an expert interview evaluator for a {interview_type} interview.
-    Analyze the following transcript and provide a structured evaluation.
-    
-    Return ONLY a JSON object with the following fields:
-    - technical_score (0-100): Accuracy of technical answers.
-    - communication_score (0-100): Clarity, conciseness, and flow.
-    - confidence_score (0-100): Assertiveness and tone.
-    - feedback: A short summary of performance (max 3 sentences).
-    - strengths: A list of 2-3 strong points.
-    - improvements: A list of 2-3 areas to improve.
-    - keywords_mentioned: A list of relevant technical keywords or concepts the candidate used.
-    - keywords_missed: A list of important keywords or concepts the candidate should have mentioned but didn't.
-    
-    Do not include markdown formatting like ```json. Just the raw JSON string.
-    """
+    if interview_type == "dsa_practice":
+        system_prompt = """
+        You are an expert Code Reviewer and DSA Tutor.
+        Analyze the following coding session history. The candidate has solved (or attempted) a DSA problem.
+        
+        Return ONLY a JSON object with the following fields:
+        - technical_score (0-100): Correctness of the solution and handling of edge cases.
+        - communication_score (0-100): Code readability, variable naming, and comments.
+        - confidence_score (0-100): Efficiency of the solution (Time/Space complexity). Higher score = Better efficiency.
+        - feedback: A short summary of the code quality and approach.
+        - strengths: List 2-3 things done well (e.g. "Good variable names", "Optimal O(n) solution").
+        - improvements: List 2-3 areas to improve (e.g. "Handle empty input", "Use a HashMap instead").
+        - keywords_mentioned: List of DSA concepts used (e.g. "Two Pointers", "HashMap").
+        - keywords_missed: List of concepts that would have helped.
+        
+        Do not include markdown formatting like ```json. Just the raw JSON string.
+        """
+    else:
+        system_prompt = f"""
+        You are an expert interview evaluator for a {interview_type} interview.
+        Analyze the following transcript and provide a structured evaluation.
+        
+        Return ONLY a JSON object with the following fields:
+        - technical_score (0-100): Accuracy of technical answers.
+        - communication_score (0-100): Clarity, conciseness, and flow.
+        - confidence_score (0-100): Assertiveness and tone.
+        - feedback: A short summary of performance (max 3 sentences).
+        - strengths: A list of 2-3 strong points.
+        - improvements: A list of 2-3 areas to improve.
+        - keywords_mentioned: A list of relevant technical keywords or concepts the candidate used.
+        - keywords_missed: A list of important keywords or concepts the candidate should have mentioned but didn't.
+        
+        Do not include markdown formatting like ```json. Just the raw JSON string.
+        """
 
     try:
         completion = client.chat.completions.create(
