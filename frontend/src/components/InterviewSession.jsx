@@ -282,7 +282,7 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
                     </div>
                 </div>
                 <Button variant="outline-danger" size="sm" onClick={handleEndInterview} className="rounded-pill px-4 py-2 fw-bold border-2">
-                    End Session
+                    {type === 'dsa_practice' ? 'End Practice' : 'End Session'}
                 </Button>
             </div>
 
@@ -292,9 +292,22 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
                     <div className="flex-grow-1 overflow-auto mb-3" style={{ scrollBehavior: 'smooth' }}>
                         {messages.length === 0 && (
                             <div className="text-center text-muted mt-5">
-                                <div className="display-1 mb-4 opacity-50">👋</div>
-                                <h3 className="fw-bold text-primary mb-2">Ready to start?</h3>
-                                <p className="lead text-secondary">Say "Hello" to begin your interview session.</p>
+                                {type === 'dsa_practice' ? (
+                                    <>
+                                        <div className="display-1 mb-4 opacity-50">🧩</div>
+                                        <h3 className="fw-bold text-primary mb-2">Generating Problem...</h3>
+                                        <p className="lead text-secondary">Your coding challenge is being prepared.</p>
+                                        <div className="spinner-border text-primary mt-3" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="display-1 mb-4 opacity-50">👋</div>
+                                        <h3 className="fw-bold text-primary mb-2">Ready to start?</h3>
+                                        <p className="lead text-secondary">Say "Hello" to begin your interview session.</p>
+                                    </>
+                                )}
                             </div>
                         )}
                         
