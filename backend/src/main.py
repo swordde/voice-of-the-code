@@ -87,8 +87,8 @@ async def get_reports(current_user: dict = Depends(get_current_user)):
     return await get_recent_reports(user_email=current_user["email"])
 
 @app.websocket("/ws/interview/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, client_id: str, type: str = "technical", difficulty: str = "medium"):
-    print(f"WebSocket connection attempt: {client_id}, type: {type}, difficulty: {difficulty}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str, type: str = "technical", difficulty: str = "medium", topic: str = None):
+    print(f"WebSocket connection attempt: {client_id}, type: {type}, difficulty: {difficulty}, topic: {topic}")
     try:
         await websocket.accept()
         print(f"WebSocket accepted: {client_id}")
@@ -126,9 +126,26 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str, type: str = "
                         
                         # Get AI Response
                         print(f"Calling AI Service from {llm_module.__file__}")
-                        ai_reply = await get_ai_response(history, type, difficulty)
+                        ai_reply = await get_ai_response(history, type, difficulty, topic)
                         print(f"AI Service returned: {ai_reply}")
                         # ai_reply = "UPDATED MOCK"
+                        history.append({"role": "assistant", "content": ai_reply})
+                        
+                        # Send Text Response
+                        await response_queue.put({"type": "ai_response", "text": ai_reply})
+
+                    elif data.get("type") == "submit_code":
+                        code = data.get("text")
+                        language = data.get("language", "javascript")
+                        
+                        full_message = f"I have submitted the following code:\n```{language}\n{code}\n```"
+                        
+                        # Add to history
+                        history.append({"role": "user", "content": full_message})
+                        
+                        # Get AI Response
+                        print(f"Processing Code Submission...")
+                        ai_reply = await get_ai_response(history, type, difficulty, topic)
                         history.append({"role": "assistant", "content": ai_reply})
                         
                         # Send Text Response
@@ -154,7 +171,15 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str, type: str = "
             print(f"Error in send_responses: {e}")
 
     # Initial greeting
-    initial_greeting = "Hello! I'm your interviewer today. Let's start with a simple question: Tell me about yourself."
+    if type == "dsa_practice":
+        # For DSA practice, generate a question immediately
+        print("Generating initial DSA question...")
+        # We simulate a user asking for a problem to trigger the AI
+        startup_history = [{"role": "user", "content": f"Generate a {difficulty} level DSA problem. Output ONLY the problem description. No greetings."}]
+        initial_greeting = await get_ai_response(startup_history, type, difficulty, topic)
+    else:
+        initial_greeting = "Hello! I'm your interviewer today. Let's start with a simple question: Tell me about yourself."
+
     history.append({"role": "assistant", "content": initial_greeting})
     await response_queue.put({"type": "ai_response", "text": initial_greeting})
 
