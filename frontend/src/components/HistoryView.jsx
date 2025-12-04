@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Table, Badge, Button, Spinner, Alert } from 'react-bootstrap';
 import { endpoints } from '../config';
 
-const HistoryView = ({ onBack }) => {
+const HistoryView = ({ onBack, onViewReport }) => {
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -84,7 +84,7 @@ const HistoryView = ({ onBack }) => {
                 </div>
             ) : (
                 <div className="glass-panel rounded-4 overflow-hidden">
-                    <Table hover responsive className="mb-0 align-middle text-white" style={{backgroundColor: 'transparent'}}>
+                    <Table hover responsive variant="dark" className="mb-0 align-middle text-white" style={{backgroundColor: 'transparent', '--bs-table-bg': 'transparent', '--bs-table-hover-bg': 'rgba(255,255,255,0.05)'}}>
                         <thead className="bg-dark bg-opacity-50">
                             <tr>
                                 <th className="py-3 ps-4 border-bottom border-secondary border-opacity-25 text-muted text-uppercase small fw-bold">Date</th>
@@ -97,8 +97,8 @@ const HistoryView = ({ onBack }) => {
                         </thead>
                         <tbody>
                             {reports.map((report) => (
-                                <tr key={report._id} className="border-bottom border-secondary border-opacity-10 hover-bg-white-10">
-                                    <td className="ps-4 py-3 text-light opacity-75 fw-medium">{formatDate(report.timestamp)}</td>
+                                <tr key={report._id} className="border-bottom border-secondary border-opacity-10 hover-bg-white-10" onClick={() => onViewReport(report)} style={{cursor: 'pointer'}}>
+                                    <td className="ps-4 py-3 text-white fw-bold">{formatDate(report.timestamp)}</td>
                                     <td className="py-3">
                                         <Badge bg="dark" className="text-capitalize border border-secondary border-opacity-50 fw-normal px-3 py-2 rounded-pill text-white">
                                             {formatType(report.type)}

@@ -16,6 +16,7 @@ function App() {
   const [interviewDifficulty, setInterviewDifficulty] = useState('medium');
   const [practiceTopic, setPracticeTopic] = useState(null);
   const [reportData, setReportData] = useState(null);
+  const [previousView, setPreviousView] = useState('dashboard');
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [authView, setAuthView] = useState('login'); // 'login' or 'signup'
 
@@ -55,7 +56,14 @@ function App() {
     console.log(`Starting practice session for ${topic}...`);
   };
 
+  const handleViewReport = (report) => {
+    setPreviousView(view);
+    setReportData(report);
+    setView('report');
+  };
+
   const handleEndSession = (report) => {
+    setPreviousView('dashboard');
     setReportData(report);
     setView('report');
   };
@@ -98,11 +106,11 @@ function App() {
       </Navbar>
       
       <Container className="mt-4">
-        {view === 'dashboard' && <Dashboard onStartInterview={handleStartInterview} />}
+        {view === 'dashboard' && <Dashboard onStartInterview={handleStartInterview} onViewReport={handleViewReport} />}
         {view === 'practice' && <PracticeHub onStartPractice={handleStartPractice} />}
         {view === 'interview' && <InterviewSession type={interviewType} difficulty={interviewDifficulty} topic={practiceTopic} onEndSession={handleEndSession} />}
-        {view === 'report' && <ReportView report={reportData} onBack={() => setView('dashboard')} />}
-        {view === 'history' && <HistoryView onBack={() => setView('dashboard')} />}
+        {view === 'report' && <ReportView report={reportData} onBack={() => setView(previousView)} />}
+        {view === 'history' && <HistoryView onBack={() => setView('dashboard')} onViewReport={handleViewReport} />}
         {view === 'learning' && <LearningSpace onBack={() => setView('dashboard')} />}
       </Container>
     </>

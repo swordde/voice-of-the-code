@@ -42,7 +42,7 @@ const interviewTypes = [
     }
 ];
 
-const Dashboard = ({ onStartInterview }) => {
+const Dashboard = ({ onStartInterview, onViewReport }) => {
     const [user, setUser] = useState(null);
     const [reports, setReports] = useState([]);
     const [showMicCheck, setShowMicCheck] = useState(false);
@@ -82,7 +82,8 @@ const Dashboard = ({ onStartInterview }) => {
                         score: Math.round((r.scores.technical + r.scores.communication + r.scores.confidence) / 3),
                         technical: r.scores.technical,
                         communication: r.scores.communication,
-                        confidence: r.scores.confidence
+                        confidence: r.scores.confidence,
+                        originalReport: r
                     }));
                     setReports(processed);
                 }
@@ -207,7 +208,7 @@ const Dashboard = ({ onStartInterview }) => {
                                 <h6 className="text-white fw-bold mb-4">Recent Feedback</h6>
                                 <div className="d-flex flex-column gap-3">
                                     {reports.slice().reverse().slice(0, 3).map((report, idx) => (
-                                        <div key={idx} className="p-3 rounded-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25">
+                                        <div key={idx} className="p-3 rounded-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 hover-bg-white-10" onClick={() => onViewReport(report.originalReport)} style={{cursor: 'pointer'}}>
                                             <div className="d-flex justify-content-between align-items-center mb-2">
                                                 <span className="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25">
                                                     {report.date}

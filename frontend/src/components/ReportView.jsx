@@ -5,10 +5,18 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Responsi
 const ReportView = ({ report, onBack }) => {
     if (!report) return <div className="text-white">Loading report...</div>;
 
+    const getScore = (key) => {
+        // Handle both flat (from grading service) and nested (from DB) formats
+        if (report.scores && report.scores[key] !== undefined) {
+            return report.scores[key];
+        }
+        return report[`${key}_score`] || 0;
+    };
+
     const data = [
-        { subject: 'Technical', A: report.technical_score, fullMark: 100 },
-        { subject: 'Communication', A: report.communication_score, fullMark: 100 },
-        { subject: 'Confidence', A: report.confidence_score, fullMark: 100 },
+        { subject: 'Technical', A: getScore('technical'), fullMark: 100 },
+        { subject: 'Communication', A: getScore('communication'), fullMark: 100 },
+        { subject: 'Confidence', A: getScore('confidence'), fullMark: 100 },
     ];
 
     return (
