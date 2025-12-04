@@ -272,9 +272,9 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
     };
 
     return (
-        <Container fluid className="h-100 d-flex flex-column py-3" style={{ maxHeight: 'calc(100vh - 70px)' }}>
+        <Container fluid className="d-flex flex-column py-3" style={{ height: 'calc(100vh - 100px)', overflow: 'hidden' }}>
             {/* Header */}
-            <div className="d-flex justify-content-between align-items-center mb-4 px-4">
+            <div className="d-flex justify-content-between align-items-center mb-4 px-4" style={{ flexShrink: 0 }}>
                 <div>
                     <h4 className="mb-1 fw-bold text-gradient">
                         {type === 'dsa_practice' ? 'DSA Practice Mode' : 
@@ -383,7 +383,7 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
             </Row>
 
             {/* Controls Area */}
-            <div className="px-4 pb-2">
+            <div className="px-4 pb-2" style={{ flexShrink: 0 }}>
                 <div className="glass-panel rounded-4 p-3">
                     <div className="d-flex align-items-center justify-content-between mb-3">
                         <div className="d-flex align-items-center flex-grow-1 gap-4">
