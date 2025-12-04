@@ -424,49 +424,61 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
                     <div className="d-flex align-items-center justify-content-between mb-3">
                         <div className="d-flex align-items-center flex-grow-1 gap-4">
                             {type !== 'dsa_practice' && (
-                                <div style={{ width: '120px' }}>
-                                    <AudioVisualizer isActive={isAiSpeaking || isListening || isProcessing} />
+                                <>
+                                    <div style={{ width: '120px' }}>
+                                        <AudioVisualizer isActive={isAiSpeaking || isListening || isProcessing} />
+                                    </div>
+                                    <div className="text-muted small flex-grow-1">
+                                        <div className="fw-bold text-uppercase mb-1" style={{fontSize: '0.7rem', letterSpacing: '1px'}}>
+                                            {isAiSpeaking ? "AI Speaking" : isProcessing ? "Processing" : isListening ? "Listening" : "Standby"}
+                                        </div>
+                                        {isListening ? (
+                                            <div className="text-primary fw-medium">
+                                                {transcript || <span className="opacity-50">Listening...</span>}
+                                                <span className="text-muted opacity-50 ms-1">{interimTranscript}</span>
+                                            </div>
+                                        ) : (
+                                            <div className="opacity-50">Waiting for input...</div>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                            {type === 'dsa_practice' && (
+                                <div className="text-muted small flex-grow-1">
+                                    <div className="fw-bold text-uppercase mb-1" style={{fontSize: '0.7rem', letterSpacing: '1px'}}>
+                                        {isProcessing ? "Processing..." : "Ready"}
+                                    </div>
+                                    <div className="opacity-50">Type your code or answer below.</div>
                                 </div>
                             )}
-                            <div className="text-muted small flex-grow-1">
-                                <div className="fw-bold text-uppercase mb-1" style={{fontSize: '0.7rem', letterSpacing: '1px'}}>
-                                    {isAiSpeaking ? "AI Speaking" : isProcessing ? "Processing" : isListening ? "Listening" : "Standby"}
-                                </div>
-                                {isListening ? (
-                                    <div className="text-primary fw-medium">
-                                        {transcript || <span className="opacity-50">Listening...</span>}
-                                        <span className="text-muted opacity-50 ms-1">{interimTranscript}</span>
-                                    </div>
-                                ) : (
-                                    <div className="opacity-50">Waiting for input...</div>
-                                )}
-                            </div>
                         </div>
                         
-                        <div className="d-flex gap-3 ms-3">
-                            {!isListening ? (
-                                <Button 
-                                    variant="primary"
-                                    onClick={handleStartListening}
-                                    disabled={isProcessing || !isConnected}
-                                    className="rounded-circle d-flex align-items-center justify-content-center shadow-lg hover-scale"
-                                    style={{ width: '50px', height: '50px', fontSize: '1.2rem' }}
-                                    title="Start Speaking"
-                                >
-                                    🎙️
-                                </Button>
-                            ) : (
-                                <Button 
-                                    variant="danger"
-                                    onClick={handleStopListening}
-                                    className="rounded-circle d-flex align-items-center justify-content-center shadow-lg hover-scale"
-                                    style={{ width: '50px', height: '50px', fontSize: '1.2rem' }}
-                                    title="Stop & Send"
-                                >
-                                    ⏹️
-                                </Button>
-                            )}
-                        </div>
+                        {type !== 'dsa_practice' && (
+                            <div className="d-flex gap-3 ms-3">
+                                {!isListening ? (
+                                    <Button 
+                                        variant="primary"
+                                        onClick={handleStartListening}
+                                        disabled={isProcessing || !isConnected}
+                                        className="rounded-circle d-flex align-items-center justify-content-center shadow-lg hover-scale"
+                                        style={{ width: '50px', height: '50px', fontSize: '1.2rem' }}
+                                        title="Start Speaking"
+                                    >
+                                        🎙️
+                                    </Button>
+                                ) : (
+                                    <Button 
+                                        variant="danger"
+                                        onClick={handleStopListening}
+                                        className="rounded-circle d-flex align-items-center justify-content-center shadow-lg hover-scale"
+                                        style={{ width: '50px', height: '50px', fontSize: '1.2rem' }}
+                                        title="Stop & Send"
+                                    >
+                                        ⏹️
+                                    </Button>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <form onSubmit={handleTextSubmit} className="d-flex gap-2">
