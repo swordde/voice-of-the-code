@@ -75,15 +75,15 @@ const Dashboard = ({ onStartInterview }) => {
                 
                 if (reportsRes.ok) {
                     const reportsData = await reportsRes.json();
-                    // Process reports for chart
-                    const processed = reportsData.map((r, i) => ({
+                    // Process reports for chart: Sort Oldest -> Newest for correct progression
+                    const processed = [...reportsData].reverse().map((r, i) => ({
                         name: `Session ${i + 1}`,
                         date: new Date(r.timestamp).toLocaleDateString(),
                         score: Math.round((r.scores.technical + r.scores.communication + r.scores.confidence) / 3),
                         technical: r.scores.technical,
                         communication: r.scores.communication,
                         confidence: r.scores.confidence
-                    })).reverse(); // Show oldest to newest
+                    }));
                     setReports(processed);
                 }
 
