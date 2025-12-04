@@ -354,26 +354,31 @@ const InterviewSession = ({ type, difficulty, topic, onEndSession }) => {
                 {/* Code Editor Area */}
                 {showEditor && (
                     <Col md={7} className="h-100 d-flex flex-column">
-                        <div className="glass-panel rounded-4 h-100 d-flex flex-column overflow-hidden border border-secondary border-opacity-25">
+                        <div className="glass-panel rounded-4 h-100 d-flex flex-column border border-secondary border-opacity-25">
                             <div className="p-2 bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
                                 <span className="small fw-bold text-muted ms-2 text-capitalize">{language} Editor</span>
                                 <Button size="sm" variant="success" onClick={handleCodeSubmit} disabled={isProcessing}>
                                     Run & Submit Code ▶
                                 </Button>
                             </div>
-                            <div className="flex-grow-1" style={{ minHeight: '400px' }}>
+                            <div className="flex-grow-1 position-relative" style={{ minHeight: '400px' }}>
                                 <Editor
+                                    key={language}
                                     height="100%"
+                                    width="100%"
                                     defaultLanguage={language}
                                     language={language}
                                     theme="vs-dark"
                                     value={code}
-                                    onChange={(value) => setCode(value)}
+                                    onChange={(value) => setCode(value || '')}
                                     options={{
                                         minimap: { enabled: false },
                                         fontSize: 14,
                                         padding: { top: 16 },
                                         automaticLayout: true,
+                                        scrollBeyondLastLine: false,
+                                        readOnly: false,
+                                        domReadOnly: false
                                     }}
                                 />
                             </div>
