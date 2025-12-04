@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
+import Editor from '@monaco-editor/react';
 import { useWebSocket } from '../hooks/useWebSocket';
 import AudioVisualizer from './AudioVisualizer';
 import { endpoints } from '../config';
@@ -12,6 +13,8 @@ const InterviewSession = ({ type, difficulty, onEndSession }) => {
     const [transcript, setTranscript] = useState('');
     const [interimTranscript, setInterimTranscript] = useState('');
     const [textInput, setTextInput] = useState('');
+    const [code, setCode] = useState('// Write your code here...');
+    const [showEditor, setShowEditor] = useState(type === 'technical');
     
     // Refs for real-time logic
     const transcriptRef = useRef('');
@@ -217,6 +220,15 @@ const InterviewSession = ({ type, difficulty, onEndSession }) => {
         setTextInput('');
     };
 
+    const handleCodeSubmit = () => {
+        if (!code.trim() || code === '// Write your code here...') return;
+
+        setIsProcessing(true);
+        const codeMessage = `I have submitted the following code:\n\`\`\`javascript\n${code}\n\`\`\``;
+        setMessages(prev => [...prev, { sender: 'User', text: codeMessage, role: 'user' }]);
+        sendMessage(JSON.stringify({ type: "submit_code", text: code, language: "javascript" }));
+    };
+
     const handleEndInterview = async () => {
         // 1. Filter messages to get history
         const history = messages
@@ -270,43 +282,75 @@ const InterviewSession = ({ type, difficulty, onEndSession }) => {
                 </Button>
             </div>
 
-            {/* Chat Area */}
-            <div className="flex-grow-1 overflow-auto mb-4 px-4" style={{ scrollBehavior: 'smooth' }}>
-                {messages.length === 0 && (
-                    <div className="text-center text-muted mt-5">
-                        <div className="display-1 mb-4 opacity-50">👋</div>
-                        <h3 className="fw-bold text-primary mb-2">Ready to start?</h3>
-                        <p className="lead text-secondary">Say "Hello" to begin your interview session.</p>
-                    </div>
-                )}
-                
-                {messages.map((msg, idx) => (
-                    <div key={idx} className={`d-flex mb-4 ${msg.role === 'user' ? 'justify-content-end' : 'justify-content-start'}`}>
-                        {msg.role !== 'user' && (
-                            <div className="me-3 d-flex align-items-end pb-2">
-                                <div className="bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{width: '36px', height: '36px', fontSize: '0.9rem'}}>AI</div>
+            <Row className="flex-grow-1 overflow-hidden px-4 mb-4">
+                {/* Chat Area */}
+                <Col md={showEditor ? 5 : 12} className="h-100 d-flex flex-column">
+                    <div className="flex-grow-1 overflow-auto mb-3" style={{ scrollBehavior: 'smooth' }}>
+                        {messages.length === 0 && (
+                            <div className="text-center text-muted mt-5">
+                                <div className="display-1 mb-4 opacity-50">👋</div>
+                                <h3 className="fw-bold text-primary mb-2">Ready to start?</h3>
+                                <p className="lead text-secondary">Say "Hello" to begin your interview session.</p>
                             </div>
                         )}
-                        <div className={`chat-bubble ${msg.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`}>
-                            {msg.text}
-                        </div>
+                        
+                        {messages.map((msg, idx) => (
+                            <div key={idx} className={`d-flex mb-4 ${msg.role === 'user' ? 'justify-content-end' : 'justify-content-start'}`}>
+                                {msg.role !== 'user' && (
+                                    <div className="me-3 d-flex align-items-end pb-2">
+                                        <div className="bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{width: '36px', height: '36px', fontSize: '0.9rem'}}>AI</div>
+                                    </div>
+                                )}
+                                <div className={`chat-bubble ${msg.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`} style={{whiteSpace: 'pre-wrap'}}>
+                                    {msg.text}
+                                </div>
+                            </div>
+                        ))}
+                        
+                        {/* Typing Indicator */}
+                        {isProcessing && (
+                            <div className="d-flex mb-4 justify-content-start">
+                                <div className="me-3 d-flex align-items-end pb-2">
+                                    <div className="bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{width: '36px', height: '36px', fontSize: '0.9rem'}}>AI</div>
+                                </div>
+                                <div className="chat-bubble chat-bubble-ai text-muted fst-italic d-flex align-items-center gap-2">
+                                    <span className="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                                    Thinking...
+                                </div>
+                            </div>
+                        )}
+                        <div ref={messagesEndRef} />
                     </div>
-                ))}
-                
-                {/* Typing Indicator */}
-                {isProcessing && (
-                    <div className="d-flex mb-4 justify-content-start">
-                        <div className="me-3 d-flex align-items-end pb-2">
-                            <div className="bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style={{width: '36px', height: '36px', fontSize: '0.9rem'}}>AI</div>
+                </Col>
+
+                {/* Code Editor Area */}
+                {showEditor && (
+                    <Col md={7} className="h-100 d-flex flex-column">
+                        <div className="glass-panel rounded-4 h-100 d-flex flex-column overflow-hidden border border-secondary border-opacity-25">
+                            <div className="p-2 bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
+                                <span className="small fw-bold text-muted ms-2">JavaScript Editor</span>
+                                <Button size="sm" variant="success" onClick={handleCodeSubmit} disabled={isProcessing}>
+                                    Run & Submit Code ▶
+                                </Button>
+                            </div>
+                            <div className="flex-grow-1">
+                                <Editor
+                                    height="100%"
+                                    defaultLanguage="javascript"
+                                    theme="vs-dark"
+                                    value={code}
+                                    onChange={(value) => setCode(value)}
+                                    options={{
+                                        minimap: { enabled: false },
+                                        fontSize: 14,
+                                        padding: { top: 16 },
+                                    }}
+                                />
+                            </div>
                         </div>
-                        <div className="chat-bubble chat-bubble-ai text-muted fst-italic d-flex align-items-center gap-2">
-                            <span className="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-                            Thinking...
-                        </div>
-                    </div>
+                    </Col>
                 )}
-                <div ref={messagesEndRef} />
-            </div>
+            </Row>
 
             {/* Controls Area */}
             <div className="px-4 pb-2">
