@@ -11,6 +11,7 @@ const InterviewSession = ({ type, onEndSession }) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [transcript, setTranscript] = useState('');
     const [interimTranscript, setInterimTranscript] = useState('');
+    const [textInput, setTextInput] = useState('');
     
     // Refs for real-time logic
     const transcriptRef = useRef('');
@@ -47,31 +48,21 @@ const InterviewSession = ({ type, onEndSession }) => {
                 // Reset silence timer on any speech
                 if (silenceTimer.current) clearTimeout(silenceTimer.current);
 
-                let finalChunk = '';
-                let interimChunk = '';
+                // Reconstruct the transcript from scratch to avoid duplication issues
+                let fullTranscript = '';
+                let currentInterim = '';
 
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                for (let i = 0; i < event.results.length; ++i) {
                     if (event.results[i].isFinal) {
-                        finalChunk += event.results[i][0].transcript + ' ';
+                        fullTranscript += event.results[i][0].transcript;
                     } else {
-                        interimChunk += event.results[i][0].transcript;
+                        currentInterim += event.results[i][0].transcript;
                     }
                 }
 
-                if (finalChunk) {
-                    setTranscript(prev => {
-                        // Deduplication: prevent appending the same chunk if it was just added
-                        // This fixes the "hello hello hello" stutter issue
-                        if (prev.trim().endsWith(finalChunk.trim())) {
-                            return prev;
-                        }
-                        const newVal = prev + finalChunk;
-                        transcriptRef.current = newVal; // Sync ref
-                        return newVal;
-                    });
-                }
-                
-                setInterimTranscript(interimChunk);
+                setTranscript(fullTranscript);
+                transcriptRef.current = fullTranscript; // Sync ref
+                setInterimTranscript(currentInterim);
 
                 // Set timer to stop listening after 3 seconds of silence (increased from 2s)
                 silenceTimer.current = setTimeout(() => {
@@ -216,6 +207,16 @@ const InterviewSession = ({ type, onEndSession }) => {
         }
     };
 
+    const handleTextSubmit = (e) => {
+        e.preventDefault();
+        if (!textInput.trim()) return;
+
+        setIsProcessing(true);
+        setMessages(prev => [...prev, { sender: 'User', text: textInput, role: 'user' }]);
+        sendMessage(JSON.stringify({ type: "submit_answer", text: textInput }));
+        setTextInput('');
+    };
+
     const handleEndInterview = async () => {
         // 1. Filter messages to get history
         const history = messages
@@ -309,50 +310,70 @@ const InterviewSession = ({ type, onEndSession }) => {
 
             {/* Controls Area */}
             <div className="px-4 pb-2">
-                <div className="glass-panel rounded-4 p-3 d-flex align-items-center justify-content-between">
-                    <div className="d-flex align-items-center flex-grow-1 gap-4">
-                        <div style={{ width: '120px' }}>
-                            <AudioVisualizer isActive={isAiSpeaking || isListening || isProcessing} />
-                        </div>
-                        <div className="text-muted small flex-grow-1">
-                            <div className="fw-bold text-uppercase mb-1" style={{fontSize: '0.7rem', letterSpacing: '1px'}}>
-                                {isAiSpeaking ? "AI Speaking" : isProcessing ? "Processing" : isListening ? "Listening" : "Standby"}
+                <div className="glass-panel rounded-4 p-3">
+                    <div className="d-flex align-items-center justify-content-between mb-3">
+                        <div className="d-flex align-items-center flex-grow-1 gap-4">
+                            <div style={{ width: '120px' }}>
+                                <AudioVisualizer isActive={isAiSpeaking || isListening || isProcessing} />
                             </div>
-                            {isListening ? (
-                                <div className="text-primary fw-medium">
-                                    {transcript || <span className="opacity-50">Listening...</span>}
-                                    <span className="text-muted opacity-50 ms-1">{interimTranscript}</span>
+                            <div className="text-muted small flex-grow-1">
+                                <div className="fw-bold text-uppercase mb-1" style={{fontSize: '0.7rem', letterSpacing: '1px'}}>
+                                    {isAiSpeaking ? "AI Speaking" : isProcessing ? "Processing" : isListening ? "Listening" : "Standby"}
                                 </div>
+                                {isListening ? (
+                                    <div className="text-primary fw-medium">
+                                        {transcript || <span className="opacity-50">Listening...</span>}
+                                        <span className="text-muted opacity-50 ms-1">{interimTranscript}</span>
+                                    </div>
+                                ) : (
+                                    <div className="opacity-50">Waiting for input...</div>
+                                )}
+                            </div>
+                        </div>
+                        
+                        <div className="d-flex gap-3 ms-3">
+                            {!isListening ? (
+                                <Button 
+                                    variant="primary"
+                                    onClick={handleStartListening}
+                                    disabled={isProcessing || !isConnected}
+                                    className="rounded-circle d-flex align-items-center justify-content-center shadow-lg hover-scale"
+                                    style={{ width: '50px', height: '50px', fontSize: '1.2rem' }}
+                                    title="Start Speaking"
+                                >
+                                    🎙️
+                                </Button>
                             ) : (
-                                <div className="opacity-50">Waiting for input...</div>
+                                <Button 
+                                    variant="danger"
+                                    onClick={handleStopListening}
+                                    className="rounded-circle d-flex align-items-center justify-content-center shadow-lg hover-scale"
+                                    style={{ width: '50px', height: '50px', fontSize: '1.2rem' }}
+                                    title="Stop & Send"
+                                >
+                                    ⏹️
+                                </Button>
                             )}
                         </div>
                     </div>
-                    
-                    <div className="d-flex gap-3 ms-3">
-                        {!isListening ? (
-                            <Button 
-                                variant="primary"
-                                onClick={handleStartListening}
-                                disabled={isProcessing || !isConnected}
-                                className="rounded-circle d-flex align-items-center justify-content-center shadow-lg hover-scale"
-                                style={{ width: '60px', height: '60px', fontSize: '1.5rem' }}
-                                title="Start Speaking"
-                            >
-                                🎙️
-                            </Button>
-                        ) : (
-                            <Button 
-                                variant="danger"
-                                onClick={handleStopListening}
-                                className="rounded-circle d-flex align-items-center justify-content-center shadow-lg hover-scale"
-                                style={{ width: '60px', height: '60px', fontSize: '1.5rem' }}
-                                title="Stop & Send"
-                            >
-                                ⏹️
-                            </Button>
-                        )}
-                    </div>
+
+                    <form onSubmit={handleTextSubmit} className="d-flex gap-2">
+                        <input
+                            type="text"
+                            className="form-control bg-dark text-light border-secondary"
+                            placeholder="Type your answer here..."
+                            value={textInput}
+                            onChange={(e) => setTextInput(e.target.value)}
+                            disabled={isListening || isProcessing}
+                        />
+                        <Button 
+                            type="submit" 
+                            variant="outline-primary" 
+                            disabled={!textInput.trim() || isListening || isProcessing}
+                        >
+                            Send
+                        </Button>
+                    </form>
                 </div>
             </div>
         </Container>
